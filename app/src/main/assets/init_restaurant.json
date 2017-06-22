@@ -1,0 +1,20 @@
+{
+  "restaurants": [
+    {
+      "title": "GB restaurant",
+      "note": "good"
+    },
+    {
+      "title": "fourplay",
+      "note": "not bad"
+    },
+    {
+      "title": "on tap",
+      "note": "3 liter is good"
+    },
+    {
+      "title": "B_line",
+      "note": "atmosphere is good"
+    }
+  ]
+}

@@ -18,6 +18,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name=".database.RestaurantsContentProvider"
+            android:authorities="com.chris.playground"
+            android:enabled="true"
+            android:exported="false" />
+
+        <service android:name=".database.InitJsonReaderService" />
     </application>
 
 </manifest>

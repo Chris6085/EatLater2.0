@@ -40,14 +40,15 @@ public final class RestaurantListAdapter extends RecyclerView.Adapter<Restaurant
     }
 
     public static final class RestaurantViewHolder extends RecyclerView.ViewHolder {
-        private final TextView priceView;
+
         private final TextView nameView;
+        private final TextView priceView;
 
         RestaurantViewHolder(ViewGroup parent) {
             super(LayoutInflater.from(parent.getContext()).inflate(
                     R.layout.restaurant_info_entry, parent, false));
-            priceView = (TextView) itemView.findViewById(R.id.price);
-            nameView = (TextView) itemView.findViewById(R.id.name);
+            priceView = (TextView) itemView.findViewById(R.id.note);
+            nameView = (TextView) itemView.findViewById(R.id.title);
             itemView.setOnClickListener(clickListener);
         }
 
