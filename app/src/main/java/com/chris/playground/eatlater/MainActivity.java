@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -14,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import com.chris.playground.eatlater.database.InitJsonReaderService;
@@ -73,6 +75,15 @@ public class MainActivity extends AppCompatActivity implements
                 new GridLayoutManager(this, getResources().getInteger(R.integer.column_count)));
         mAdapter = new CustomCursorRecyclerViewAdapter(this, null);
         recyclerView.setAdapter(mAdapter);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Add the new record
+                startActivity(new Intent(MainActivity.this, NewRestaurantActivity.class));
+            }
+        });
 
         mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);

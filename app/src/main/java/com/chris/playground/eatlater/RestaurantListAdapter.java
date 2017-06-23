@@ -8,10 +8,6 @@ import android.widget.TextView;
 
 import java.util.List;
 
-/**
- * Created by Chrisit_Chang on 2017/6/19.
- */
-
 public final class RestaurantListAdapter extends RecyclerView.Adapter<RestaurantListAdapter.RestaurantViewHolder> {
     private List<RestaurantEntry> restaurantEntries;
 

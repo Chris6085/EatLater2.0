@@ -3,4 +3,9 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+
+    <string name="title_edit_text">Title</string>
+    <string name="note_edit_text">Note</string>
+    <string name="camera_button_text">Take a photo</string>
+    <string name="album_name">EatLater album</string>
 </resources>
