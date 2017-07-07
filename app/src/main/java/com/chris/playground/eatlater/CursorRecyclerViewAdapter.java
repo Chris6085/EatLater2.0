@@ -1,4 +1,5 @@
 package com.chris.playground.eatlater;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DataSetObserver;

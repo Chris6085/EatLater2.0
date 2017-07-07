@@ -21,6 +21,7 @@ public class RestaurantsContract {
         public static final String DEFAULT_SORT_ORDER = "_id ASC";
         public static final String TITLE = "title";
         public static final String NOTE = "note";
+        public static final String PHOTOS_URI = "photos_uri";
 //        public static final String COLUMN_TEL = "tel";
 //        public static final String COLUMN_NAME_ASSOCIATE_DIARY = "associate_diary";
 //        public static final String COLUMN_NAME_IMAGE_FILE = "image_file_name";

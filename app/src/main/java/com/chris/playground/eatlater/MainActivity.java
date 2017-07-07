@@ -96,11 +96,12 @@ public class MainActivity extends AppCompatActivity implements
         getSupportLoaderManager().restartLoader(LOADER, null, this);
     }
 
-    // These are the Contacts rows that we will retrieve.
+    // Get the all columns
     static final String[] RESTAURANTS_PROJECTION = new String[] {
             RestaurantEntry._ID,
             RestaurantEntry.TITLE,
-            RestaurantEntry.NOTE
+            RestaurantEntry.NOTE,
+            RestaurantEntry.PHOTOS_URI
     };
 
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {;
