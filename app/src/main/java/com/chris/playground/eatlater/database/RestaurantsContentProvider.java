@@ -40,6 +40,7 @@ public class RestaurantsContentProvider extends ContentProvider {
         sSettingsProjectionMap.put(RestaurantEntry._ID, RestaurantEntry._ID);
         sSettingsProjectionMap.put(RestaurantEntry.TITLE, RestaurantEntry.TITLE);
         sSettingsProjectionMap.put(RestaurantEntry.NOTE, RestaurantEntry.NOTE);
+        sSettingsProjectionMap.put(RestaurantEntry.PHOTOS_URI, RestaurantEntry.PHOTOS_URI);
     }
 
     private ContentResolver mResolver;
@@ -204,7 +205,8 @@ public class RestaurantsContentProvider extends ContentProvider {
                 "CREATE TABLE " + RestaurantEntry.TABLE_NAME + " (" +
                         RestaurantEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         RestaurantEntry.TITLE + " TEXT NOT NULL, " +
-                        RestaurantEntry.NOTE + " TEXT NOT NULL)";
+                        RestaurantEntry.NOTE + " TEXT NOT NULL, " +
+                        RestaurantEntry.PHOTOS_URI + " TEXT) ";
 
         DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
             super(context, name, factory, version);

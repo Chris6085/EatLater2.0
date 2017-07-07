@@ -12,6 +12,7 @@
         android:id="@+id/restaurant_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingBottom="@dimen/bottom_bar_height"
         android:layout_marginLeft="@dimen/main_list_margin"
         android:layout_marginRight="@dimen/main_list_margin"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>

@@ -1,40 +1,44 @@
 package com.chris.playground.eatlater;
 
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ImageButton;
-import android.widget.ImageView;
+import android.widget.Toast;
+
+import com.chris.playground.eatlater.database.RestaurantsContract;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class NewRestaurantActivity extends AppCompatActivity {
 
     private static final String TAG = "NewRestaurantActivity";
-    private static final int REQUEST_CAMERA_PERMISSION = 101;
+    private static final int CAMERA_PERMISSION = 101;
     private static final int REQUEST_TAKE_PHOTO = 1;
 
     private EditText mTitleView;
     private EditText mNoteView;
-    private ImageButton mCameraButton;
-    private ImageView mPhoto_preview;
+    private ImageButton mSubmitButton;
+    private GridView mPhotosPreviewGrid;
+    private ArrayList<String> mPhotoPreviewList;
 
     private String mCurrentPhotoPath;
     private static final String AUTHORITY_FILE_PROVIDER = "com.example.android.fileprovider";
@@ -46,9 +50,6 @@ public class NewRestaurantActivity extends AppCompatActivity {
 
         initUI();
 
-        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-        StrictMode.setVmPolicy(builder.build());
-
     }
 
     private void initUI() {
@@ -56,8 +57,8 @@ public class NewRestaurantActivity extends AppCompatActivity {
         mTitleView = (EditText) findViewById(R.id.title_edit_Text);
         mNoteView = (EditText) findViewById(R.id.note_edit_Text);
 
-        mCameraButton = (ImageButton) findViewById(R.id.camera_button);
-        mCameraButton.setOnClickListener(new View.OnClickListener() {
+        ImageButton cameraButton = (ImageButton) findViewById(R.id.camera_button);
+        cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -73,21 +74,64 @@ public class NewRestaurantActivity extends AppCompatActivity {
                             new String[]{Manifest.permission.CAMERA
                                     , Manifest.permission.READ_EXTERNAL_STORAGE
                                     , Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            REQUEST_CAMERA_PERMISSION);
+                            CAMERA_PERMISSION);
                 } else {
                     dispatchTakePictureIntent();
                 }
             }
         });
 
-        mPhoto_preview = (ImageView) findViewById(R.id.photo_preview);
+        mSubmitButton = (ImageButton) findViewById(R.id.submit_button);
+        mSubmitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isFormComplete()) {
+                    saveRestaurantInfo();
+                    finish();
+                } else {
+                    Toast.makeText(getApplicationContext(),
+                            "Fill in the above columns", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        mPhotosPreviewGrid = (GridView) findViewById(R.id.gridView);
+        mPhotoPreviewList = new ArrayList<>();
+    }
+
+    private void saveRestaurantInfo() {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(RestaurantsContract.RestaurantEntry.TITLE,
+                mTitleView.getText().toString());
+        contentValues.put(RestaurantsContract.RestaurantEntry.NOTE,
+                mNoteView.getText().toString());
+
+        if (mPhotoPreviewList.size() != 0) {
+            String uri= mPhotoPreviewList.get(0);
+            for (int i = 1; i < mPhotoPreviewList.size(); i++) {
+                uri += "," + mPhotoPreviewList.get(i);
+            }
+            contentValues.put(RestaurantsContract.RestaurantEntry.PHOTOS_URI, uri);
+        }
+
+        getContentResolver().insert(RestaurantsContract.RestaurantEntry.CONTENT_URI,
+                contentValues);
+    }
+
+    private boolean isFormComplete() {
+        if (!TextUtils.isEmpty(mTitleView.getText())
+                && !TextUtils.isEmpty(mNoteView.getText())) {
+            mSubmitButton.setClickable(true);
+            return true;
+        }
+        return false;
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case REQUEST_CAMERA_PERMISSION: {
+            case CAMERA_PERMISSION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -145,45 +189,18 @@ public class NewRestaurantActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             if (mCurrentPhotoPath != null) {
-                setPic();
+                mPhotoPreviewList.add(mCurrentPhotoPath);
+                updatePhotosPreview();
                 galleryAddPic();
                 mCurrentPhotoPath = null;
             }
         }
     }
 
-    private void setPic() {
-
-		/* There isn't enough memory to open up more than a couple camera photos */
-		/* So pre-scale the target bitmap into which the file is decoded */
-
-		/* Get the size of the ImageView */
-        int targetW = mPhoto_preview.getWidth();
-        int targetH = mPhoto_preview.getHeight();
-
-		/* Get the size of the image */
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-        int photoW = bmOptions.outWidth;
-        int photoH = bmOptions.outHeight;
-
-		/* Figure out which way needs to be reduced less */
-        int scaleFactor = 1;
-        if ((targetW > 0) || (targetH > 0)) {
-            scaleFactor = Math.min(photoW/targetW, photoH/targetH);
-        }
-
-		/* Set bitmap options to scale the image decode target */
-        bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
-        bmOptions.inPurgeable = true;
-
-		/* Decode the JPEG file into a Bitmap */
-        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-
-		/* Associate the Bitmap to the ImageView */
-        mPhoto_preview.setImageBitmap(bitmap);
+    private void updatePhotosPreview() {
+        ImageAdapter imageAdapter = new ImageAdapter(this, R.layout.grid_item_layout
+                , mPhotoPreviewList);
+        mPhotosPreviewGrid.setAdapter(imageAdapter);
     }
 
     private void galleryAddPic() {
