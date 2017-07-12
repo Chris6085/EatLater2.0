@@ -87,18 +87,29 @@ public class CustomCursorRecyclerViewAdapter extends CursorRecyclerViewAdapter {
             nameView.setText(c.getString(c.getColumnIndex(RestaurantEntry.TITLE)));
             noteView.setText(c.getString(c.getColumnIndex(RestaurantEntry.NOTE)));
 
-            // Save the id.
+            // Set the id and photos.
             this.id = c.getLong(c.getColumnIndex(RestaurantEntry._ID));
+            setPhotoData(c);
+        }
 
+        private void setPhotoData(Cursor c) {
             String photo_uris = c.getString(c.getColumnIndex(RestaurantEntry.PHOTOS_URI));
             if (null != photo_uris) {
-                ArrayList<String> list_uri = new ArrayList<>(Arrays.asList(photo_uris.split(",")));
-                // Load the first photo for default pic.
-                Glide.with(mContext).load(list_uri.get(0))
-                        .placeholder(R.drawable.ic_refresh).centerCrop()
-                        .into(imageView);
+                ArrayList<String> list_uri = Utils.checkImageUris(
+                        new ArrayList<>(Arrays.asList(photo_uris.split(","))));
+
+                if (list_uri.size() != 0) {
+                    // Load the first photo for default pic.
+                    Glide.with(mContext).load(list_uri.get(0))
+                            .placeholder(R.drawable.ic_refresh).centerCrop()
+                            .into(imageView);
+                    return;
+                }
             }
 
+            Glide.with(mContext).load(R.drawable.ic_cheese)
+                    .placeholder(R.drawable.ic_refresh).centerCrop()
+                    .into(imageView);
         }
     }
 }
