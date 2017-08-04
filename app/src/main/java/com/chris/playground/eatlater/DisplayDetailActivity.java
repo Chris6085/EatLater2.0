@@ -1,6 +1,7 @@
 package com.chris.playground.eatlater;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -21,9 +22,12 @@ import java.util.Arrays;
 
 public class DisplayDetailActivity extends AppCompatActivity {
 
+    public static final String IMAGE_URI_KEY = "image_uri_key";
+
     private static final String TAG = "DisplayDetailActivity";
     private static final int READ_EXTERNAL_STORAGE_PERMISSION = 101;
     private static final String ID_KEY = "id_key";
+
     private String mId;
     private ArrayList<String> mImages;
 
@@ -85,16 +89,23 @@ public class DisplayDetailActivity extends AppCompatActivity {
                     public void onItemClick(AdapterView<?> arg0, View arg1,
                                             int position, long arg3) {
                         if (null != mImages && !mImages.isEmpty()) {
-                            Toast.makeText(
-                                    getApplicationContext(),
-                                    "position " + position + " " + mImages.get(position),
-                                    Toast.LENGTH_SHORT).show();
+                            showFullImage(mImages.get(position));
+//                            Toast.makeText(
+//                                    getApplicationContext(),
+//                                    "position " + position + " " + mImages.get(position),
+//                                    Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
             }
             c.close();
         }
+    }
+
+    private void showFullImage(String uri) {
+        Intent intent = new Intent(this, FullImageActivity.class);
+        intent.putExtra(IMAGE_URI_KEY, uri);
+        startActivity(intent);
     }
 
     @Override

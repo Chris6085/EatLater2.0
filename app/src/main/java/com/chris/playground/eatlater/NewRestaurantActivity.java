@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -101,7 +102,22 @@ public class NewRestaurantActivity extends AppCompatActivity {
         });
 
         mPhotoGridView = (GridView) findViewById(R.id.gridView);
+        mPhotoGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+            }
+        });
         mPhotoPreviewList = new ArrayList<>();
+    }
+
+    private boolean isFormComplete() {
+        if (!TextUtils.isEmpty(mTitleView.getText())
+                && !TextUtils.isEmpty(mNoteView.getText())) {
+            mSubmitButton.setClickable(true);
+            return true;
+        }
+        return false;
     }
 
     private void saveRestaurantInfo() {
@@ -121,15 +137,6 @@ public class NewRestaurantActivity extends AppCompatActivity {
 
         getContentResolver().insert(RestaurantsContract.RestaurantEntry.CONTENT_URI,
                 contentValues);
-    }
-
-    private boolean isFormComplete() {
-        if (!TextUtils.isEmpty(mTitleView.getText())
-                && !TextUtils.isEmpty(mNoteView.getText())) {
-            mSubmitButton.setClickable(true);
-            return true;
-        }
-        return false;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.chris.playground.eatlater.database;
 
+import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -13,34 +14,54 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.HashMap;
 import com.chris.playground.eatlater.database.RestaurantsContract.RestaurantEntry;
 
+import static android.app.SearchManager.SUGGEST_URI_PATH_QUERY;
+
 public class RestaurantsContentProvider extends ContentProvider {
-    private static final String TAG = "RestaurantsContentProvider";
+    private static final String TAG = "ContentProvider";
 
     private static final String DATABASE_NAME = "Restaurants.db";
     private static final int DATABASE_VERSION = 1;
 
     private static final int RESTAURANTS = 100;
     private static final int RESTAURANT_ID = 101;
+    private static final int SEARCH = 200;
 
     private static final UriMatcher sUriMatcher;
-    private static final HashMap<String, String> sSettingsProjectionMap;
+    private static final HashMap<String, String> sProjectionMap;
     private static final String ID_SELECTION = RestaurantEntry._ID + "=";
+
+    private static final HashMap<String, String> sSearchProjectionMap;
+    private static final String ROW_ID = "rowid";
 
     static {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        sUriMatcher.addURI(RestaurantsContract.AUTHORITY, RestaurantsContract.PATH_RESTAURANTS, RESTAURANTS);
-        sUriMatcher.addURI(RestaurantsContract.AUTHORITY, RestaurantsContract.PATH_RESTAURANTS + "/#",
-                RESTAURANT_ID);
+        sUriMatcher.addURI(RestaurantsContract.AUTHORITY,
+                RestaurantsContract.PATH_RESTAURANTS + "/" + SUGGEST_URI_PATH_QUERY, SEARCH);
+        sUriMatcher.addURI(RestaurantsContract.AUTHORITY,
+                RestaurantsContract.PATH_RESTAURANTS, RESTAURANTS);
+        sUriMatcher.addURI(RestaurantsContract.AUTHORITY,
+                RestaurantsContract.PATH_RESTAURANTS + "/#", RESTAURANT_ID);
 
-        sSettingsProjectionMap = new HashMap<>();
-        sSettingsProjectionMap.put(RestaurantEntry._ID, RestaurantEntry._ID);
-        sSettingsProjectionMap.put(RestaurantEntry.TITLE, RestaurantEntry.TITLE);
-        sSettingsProjectionMap.put(RestaurantEntry.NOTE, RestaurantEntry.NOTE);
-        sSettingsProjectionMap.put(RestaurantEntry.PHOTOS_URI, RestaurantEntry.PHOTOS_URI);
+        sProjectionMap = new HashMap<>();
+        sProjectionMap.put(RestaurantEntry._ID, RestaurantEntry._ID);
+        sProjectionMap.put(RestaurantEntry.TITLE, RestaurantEntry.TITLE);
+        sProjectionMap.put(RestaurantEntry.NOTE, RestaurantEntry.NOTE);
+        sProjectionMap.put(RestaurantEntry.PHOTOS_URI, RestaurantEntry.PHOTOS_URI);
+
+        sSearchProjectionMap = new HashMap<>();
+        sSearchProjectionMap.put(RestaurantEntry._ID, RestaurantEntry._ID);
+        sSearchProjectionMap.put(RestaurantEntry.TITLE,
+                RestaurantEntry.TITLE + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_1);
+        sSearchProjectionMap.put(RestaurantEntry.NOTE,
+                RestaurantEntry.NOTE + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_2);
+        sSearchProjectionMap.put(ROW_ID,
+                ROW_ID  + " AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
+
     }
 
     private ContentResolver mResolver;
@@ -139,14 +160,20 @@ public class RestaurantsContentProvider extends ContentProvider {
         switch (match) {
             case RESTAURANTS: {
                 sqlBuilder.setTables(RestaurantEntry.TABLE_NAME);
-                sqlBuilder.setProjectionMap(sSettingsProjectionMap);
+                sqlBuilder.setProjectionMap(sProjectionMap);
                 break;
             }
             case RESTAURANT_ID: {
                 String id = uri.getPathSegments().get(1);
                 sqlBuilder.setTables(RestaurantEntry.TABLE_NAME);
-                sqlBuilder.setProjectionMap(sSettingsProjectionMap);
+                sqlBuilder.setProjectionMap(sProjectionMap);
                 sqlBuilder.appendWhere(ID_SELECTION + id);
+                break;
+            }
+            case SEARCH: {
+                selectionArgs[0] = "%" + selectionArgs[0] + "%";
+                sqlBuilder.setTables(RestaurantEntry.TABLE_NAME);
+                sqlBuilder.setProjectionMap(sSearchProjectionMap);
                 break;
             }
             default:
